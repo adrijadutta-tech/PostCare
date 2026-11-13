@@ -1,0 +1,19 @@
+{
+  "name": "PostCare - Postnatal Follow-Up & Warning-Sign Companion",
+  "short_name": "PostCare",
+  "description": "Zero-friction postnatal follow-up, WHO visit timeline, symptom triage, and depression screening for new mothers.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8FAFA",
+  "theme_color": "#12474B",
+  "icons": [
+    {
+      "src": "./assets/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

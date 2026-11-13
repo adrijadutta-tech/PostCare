@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#12474B">
+  <meta name="description" content="PostCare - A Postnatal Follow-Up & Warning-Sign Companion keeping mothers connected to care after hospital discharge in India.">
+  
+  <title>PostCare - Postnatal Follow-Up & Warning-Sign Companion</title>
+
+  <!-- PWA Manifest & Favicon (Relative paths for GitHub Pages) -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
+  <link rel="apple-touch-icon" href="./assets/icons/icon.svg">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+  <!-- Top Application Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="#/" class="brand-link" title="PostCare Home">
+        <div class="brand-logo">
+          <img src="./assets/logo.svg" alt="PostCare" style="width: 28px; height: 28px;">
+        </div>
+        <div>
+          <span class="brand-title">PostCare</span>
+          <span class="brand-tagline">Scan &bull; Check in &bull; Stay safe</span>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <!-- Live Online / Offline Sync Badge -->
+        <span id="networkStatusBadge" class="network-badge online" title="PWA Connectivity Status">
+          <span class="dot"></span> Online
+        </span>
+
+        <!-- Global Language Selector -->
+        <select id="globalLangSelect" class="lang-select" aria-label="Select Language">
+          <option value="en">EN</option>
+          <option value="hi">हिन्दी</option>
+          <option value="bn">বাংলা</option>
+        </select>
+
+        <!-- PWA Install Prompt Button (Hidden until installable) -->
+        <button id="btnInstallPwa" class="btn btn-secondary btn-sm" style="display: none; padding: 4px 10px;" title="Install App to Home Screen">
+          📥 Install
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container (Swapped by Router) -->
+  <main id="appMain" class="app-main" role="main">
+    <div style="text-align: center; padding: 40px 20px;">
+      <p style="color: var(--text-muted);">Loading PostCare companion...</p>
+    </div>
+  </main>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div>
+        <strong>PostCare</strong> &bull; A Postnatal Follow-Up & Warning-Sign Companion
+      </div>
+      <div style="font-size: 0.78rem; opacity: 0.85;">
+        Aligned with UN Sustainable Development Goals: 
+        <strong>SDG 3</strong> (Good Health), <strong>SDG 5</strong> (Gender Equality), 
+        <strong>SDG 9</strong> (Innovation), and <strong>SDG 10</strong> (Reduced Inequalities).
+      </div>
+      <div style="font-size: 0.75rem; color: #698383; margin-top: 4px;">
+        Demo Data Only &bull; Prototype for Academic / Clinical Demonstration &bull; 
+        <a href="./tests/index.html" target="_blank" style="color: var(--primary-teal); font-weight: 600;">Run Triage Tests</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Scripts (Locally bundled, zero CDN dependencies) -->
+  <script src="./js/vendor/qrcode.min.js"></script>
+  <script src="./js/data/questions.js"></script>
+  <script src="./js/data/epds.js"></script>
+  <script src="./js/data/education.js"></script>
+  <script src="./js/triageRules.js"></script>
+  <script src="./js/db.js"></script>
+  <script src="./js/pwa.js"></script>
+  <script src="./js/router.js"></script>
+  <script src="./js/app.js"></script>
+
+  <script>
+    // Initialize application on DOM readiness
+    document.addEventListener("DOMContentLoaded", () => {
+      App.init();
+    });
+  </script>
+</body>
+</html>
