@@ -340,6 +340,33 @@ const DB = {
     return newMother;
   },
 
+  importMotherFromPayload: function(token, data) {
+    if (!token || !data) return null;
+    const mothers = this.getMothers();
+    const existing = mothers.find((m) => m.token === token);
+    if (existing) return existing;
+
+    const newMother = {
+      id: "m_" + Date.now(),
+      token: token,
+      name: data.n || data.name || "Mother",
+      phone: data.p || data.phone || "Not Provided",
+      hospitalId: data.h || data.hospitalId || `HOSP-${new Date().getFullYear()}-0001`,
+      deliveryDate: new Date(data.d || data.deliveryDate || Date.now()).toISOString(),
+      deliveryType: data.t || data.deliveryType || "Normal Vaginal Delivery",
+      language: data.l || data.language || "en",
+      registeredAt: new Date().toISOString(),
+      latestTriageLevel: "GREEN",
+      latestWhyLine: "Discharge QR Pass imported. First check-in pending.",
+      lastCheckinAt: null
+    };
+
+    mothers.unshift(newMother);
+    localStorage.setItem(DB_KEYS.MOTHERS, JSON.stringify(mothers));
+    this.createWhoVisitsForMother(newMother);
+    return newMother;
+  },
+
   updateMotherTriageStatus: function(motherId, level, whyLine) {
     const mothers = this.getMothers();
     const idx = mothers.findIndex((m) => m.id === motherId);

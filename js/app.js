@@ -260,16 +260,55 @@ const App = {
   // =========================================================================
   renderMotherDashboard: function(token) {
     const main = document.getElementById("appMain");
-    const mother = DB.getMotherByToken(token);
+    let mother = DB.getMotherByToken(token);
+
+    // If not found in this device's localStorage, check if portable payload was passed in URL hash
+    if (!mother) {
+      try {
+        const hashStr = window.location.hash || "";
+        const searchStr = window.location.search || "";
+        const rawParams = hashStr.includes("?") ? hashStr.split("?")[1] : (searchStr.startsWith("?") ? searchStr.slice(1) : "");
+        const params = new URLSearchParams(rawParams);
+        const encoded = params.get("p") || params.get("data");
+
+        if (encoded) {
+          const decodedBase64 = atob(decodeURIComponent(encoded));
+          const percentEscaped = Array.prototype.map.call(decodedBase64, (c) => {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join("");
+          const data = JSON.parse(decodeURIComponent(percentEscaped));
+          mother = DB.importMotherFromPayload(token, data);
+          PWA.showToast(`✓ Welcome! Discharge pass for ${mother.name} loaded on this phone.`, "success");
+        }
+      } catch (err) {
+        console.warn("Could not import mother payload:", err);
+      }
+    }
 
     if (!mother) {
+      const demoMothers = DB.getMothers();
       main.innerHTML = `
         <div class="card" style="text-align: center; padding: 40px 20px;">
-          <h2 style="color: var(--accent-rose);">Mother Token Not Found</h2>
-          <p style="color: var(--text-muted);">
-            No record matches token: <code>${token}</code>. Please check your QR link or enter a valid demo token.
+          <h2 style="color: var(--accent-rose);">Mother Token Not Found on This Device</h2>
+          <p style="color: var(--text-muted); max-width: 500px; margin: 10px auto 20px auto;">
+            Token <code>${token}</code> is not registered on this phone's browser. If you registered her on a laptop, scan her personal QR code directly (the QR code automatically transfers her profile!).
           </p>
-          <a href="#/" class="btn btn-primary" style="margin-top: 14px;">&larr; Return to Home</a>
+
+          <div style="background: var(--bg-tint); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; max-width: 440px; margin: 0 auto 20px auto; text-align: left;">
+            <strong style="color: var(--primary-deep); display: block; margin-bottom: 8px;">
+              Or open one of the pre-loaded demo mothers:
+            </strong>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${demoMothers.slice(0, 4).map(dm => `
+                <a href="#/mother/${dm.token}" class="btn btn-outline btn-sm" style="justify-content: space-between;">
+                  <span>${dm.name} (${dm.latestTriageLevel})</span>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">${dm.token} &rarr;</span>
+                </a>
+              `).join("")}
+            </div>
+          </div>
+
+          <a href="#/" class="btn btn-primary" style="margin-top: 10px;">&larr; Return to Home</a>
         </div>
       `;
       return;
@@ -1138,8 +1177,27 @@ const App = {
       return;
     }
 
-    // Build absolute URL for the QR code
-    const fullMotherUrl = `${window.location.origin}${window.location.pathname}#/mother/${mother.token}`;
+    // Build portable cross-device URL for the QR code
+    let fullMotherUrl = `${window.location.origin}${window.location.pathname}#/mother/${mother.token}`;
+    try {
+      const payloadObj = {
+        n: mother.name,
+        p: mother.phone,
+        d: (mother.deliveryDate || "").split("T")[0],
+        t: mother.deliveryType,
+        l: mother.language,
+        h: mother.hospitalId
+      };
+      const jsonStr = JSON.stringify(payloadObj);
+      const utf8Bytes = encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+        return String.fromCharCode(parseInt(p1, 16));
+      });
+      const encodedPayload = encodeURIComponent(btoa(utf8Bytes));
+      const baseUrl = window.location.href.split("#")[0];
+      fullMotherUrl = `${baseUrl}#/mother/${mother.token}?p=${encodedPayload}`;
+    } catch (err) {
+      console.warn("Could not encode portable QR payload:", err);
+    }
 
     main.innerHTML = `
       <div style="max-width: 520px; margin: 0 auto;">
